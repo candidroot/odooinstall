@@ -29,7 +29,7 @@ echo ">>> Starting Odoo $ODOO_VERSION installation..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git python3-pip build-essential wget python3-dev python3-venv \
     libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools \
-    node-less libjpeg-dev libpq-dev libffi-dev libssl-dev xz-utils xfonts-75dpi nodejs npm
+    node-less libjpeg-dev libpq-dev libffi-dev libssl-dev xz-utils xfonts-75dpi
 
 # === PostgreSQL Installation ===
 echo ">>> Installing PostgreSQL..."
@@ -67,7 +67,6 @@ echo ">>> Creating /etc/odoo.conf..."
 sudo tee /etc/odoo.conf > /dev/null <<EOF
 [options]
 admin_passwd = $ADMIN_PASS
-addons_path = $ODOO_HOME/odoo/addons,$ODOO_HOME/odoo/odoo/addons
 csv_internal_sep = ,
 data_dir = /opt/odoo/.local/share/Odoo
 db_host = False
@@ -166,10 +165,13 @@ if [[ "$INCLUDE_ENTERPRISE" == "True" ]]; then
     sudo git clone https://github.com/odoo/enterprise.git --branch $ODOO_VERSION --depth=1 $ODOO_HOME/enterprise
     sudo chown -R $ODOO_USER:$ODOO_USER $ODOO_HOME/enterprise
     sudo -u $ODOO_USER $ODOO_HOME/venv/bin/pip install num2words ofxparse dbfread ebaysdk firebase_admin pyOpenSSL
+    sudo apt install -y nodejs npm
     sudo npm install -g less
     sudo npm install -g less-plugin-clean-css
-    sudo -c "printf 'addons_path=$ODOO_HOME/odoo/addons,$ODOO_HOME/odoo/odoo/addons,$ODOO_HOME/enterprise\n' >> /etc/odoo.conf"
-
+    sudo su root -c "printf 'addons_path=$ODOO_HOME/odoo/addons,$ODOO_HOME/odoo/odoo/addons,$ODOO_HOME/enterprise\n' >> /etc/odoo.conf"
+else
+    echo ">>> Installing Odoo Community Edition only..."
+    sudo su root -c "printf 'addons_path=$ODOO_HOME/odoo/addons,$ODOO_HOME/odoo/odoo/addons\n' >> /etc/odoo.conf"
 fi
 sudo chown -R $ODOO_USER:$ODOO_USER $ODOO_HOME
 
