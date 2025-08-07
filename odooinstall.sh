@@ -29,7 +29,7 @@ echo ">>> Starting Odoo $ODOO_VERSION installation..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git python3-pip build-essential wget python3-dev python3-venv \
     libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools \
-    node-less libjpeg-dev libpq-dev libffi-dev libssl-dev xz-utils gdebi
+    node-less libjpeg-dev libpq-dev libffi-dev libssl-dev xz-utils xfonts-75dpi
 
 # === PostgreSQL Installation ===
 echo ">>> Installing PostgreSQL..."
@@ -37,10 +37,14 @@ sudo apt install -y postgresql
 sudo -u postgres createuser --createdb --username postgres --no-createrole --no-superuser $ODOO_USER || true
 
 # === Wkhtmltopdf Installation ===
-echo ">>> Installing Wkhtmltopdf..."
-wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.6/wkhtmltox_0.12.6-1.focal_amd64.deb
-sudo gdebi wkhtmltox_0.12.6-1.focal_amd64.deb
+echo ">>> Installing Wkhtmltopdf and it's related dependancy..."
+sudo wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+sudo wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
+sudo apt install -f
 rm wkhtmltox_0.12.6-1.focal_amd64.deb
+rm libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 
 # === Create Odoo User ===
 sudo adduser --system --quiet --shell=/bin/bash --home=$ODOO_HOME --group $ODOO_USER || true
@@ -63,7 +67,7 @@ echo ">>> Creating /etc/odoo.conf..."
 sudo tee /etc/odoo.conf > /dev/null <<EOF
 [options]
 admin_passwd = $ADMIN_PASS
-addons_path = $ODOO_HOME/addons,$ODOO_HOME/odoo/addons
+addons_path = $ODOO_HOME/odoo/addons,$ODOO_HOME/odoo/odoo/addons
 csv_internal_sep = ,
 data_dir = /opt/odoo/.local/share/Odoo
 db_host = False
@@ -144,7 +148,7 @@ After=network.target postgresql.service
 [Service]
 Type=simple
 User=$ODOO_USER
-ExecStart=$ODOO_HOME/venv/bin/python3 $ODOO_HOME/odoo-bin -c /etc/odoo.conf
+ExecStart=$ODOO_HOME/venv/bin/python3 $ODOO_HOME/odoo/odoo-bin -c /etc/odoo.conf
 KillMode=mixed
 
 [Install]
@@ -154,9 +158,6 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable odoo
 sudo systemctl restart odoo
-
-
-
 
 
 if [[ "$INCLUDE_ENTERPRISE" == "True" ]]; then
@@ -180,61 +181,61 @@ if [[ "$INSTALL_NGINX" == "True" ]]; then
     sudo apt install -y nginx
 
     sudo tee /etc/nginx/sites-available/odoo > /dev/null <<EOF
-    #odoo server
-    upstream odoo {
-      server 127.0.0.1:$ODOO_PORT;
-    }
-    upstream odoochat {
-      server 127.0.0.1:$ODOO_LONGPOLLING_PORT;
-    }
-    map $http_upgrade $connection_upgrade {
-      default upgrade;
-      ''      close;
-    }
+#odoo server
+upstream odoo {
+  server 127.0.0.1:$ODOO_PORT;
+}
+upstream odoochat {
+  server 127.0.0.1:$ODOO_LONGPOLLING_PORT;
+}
+map \$http_upgrade \$connection_upgrade {
+  default upgrade;
+  ''      close;
+}
 
-    server {
-      listen 80;
-      server_name $DOMAIN;
-      proxy_read_timeout 720s;
-      proxy_connect_timeout 720s;
-      proxy_send_timeout 720s;
+server {
+  listen 80;
+  server_name $DOMAIN;
+  proxy_read_timeout 720s;
+  proxy_connect_timeout 720s;
+  proxy_send_timeout 720s;
 
-      # log
-      access_log /var/log/nginx/odoo.access.log;
-      error_log /var/log/nginx/odoo.error.log;
+  # log
+  access_log /var/log/nginx/odoo.access.log;
+  error_log /var/log/nginx/odoo.error.log;
 
-      # Redirect websocket requests to odoo gevent port
-      location /websocket {
-        proxy_pass http://odoochat;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
-        proxy_set_header X-Forwarded-Host $http_host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
+  # Redirect websocket requests to odoo gevent port
+  location /websocket {
+    proxy_pass http://odoochat;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection \$connection_upgrade;
+    proxy_set_header X-Forwarded-Host \$http_host;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Real-IP \$remote_addr;
 
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
-        proxy_cookie_flags session_id samesite=lax secure;  # requires nginx 1.19.8
-      }
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    proxy_cookie_flags session_id samesite=lax secure;  # requires nginx 1.19.8
+  }
 
-      # Redirect requests to odoo backend server
-      location / {
-        # Add Headers for odoo proxy mode
-        proxy_set_header X-Forwarded-Host $http_host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_redirect off;
-        proxy_pass http://odoo;
+  # Redirect requests to odoo backend server
+  location / {
+    # Add Headers for odoo proxy mode
+    proxy_set_header X-Forwarded-Host \$http_host;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_redirect off;
+    proxy_pass http://odoo;
 
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
-        proxy_cookie_flags session_id samesite=lax secure;  # requires nginx 1.19.8
-      }
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    proxy_cookie_flags session_id samesite=lax secure;  # requires nginx 1.19.8
+  }
 
-      # common gzip
-      gzip_types text/css text/scss text/plain text/xml application/xml application/json application/javascript;
-      gzip on;
-    }
+  # common gzip
+  gzip_types text/css text/scss text/plain text/xml application/xml application/json application/javascript;
+  gzip on;
+}
 EOF
 
     sudo ln -s /etc/nginx/sites-available/odoo /etc/nginx/sites-enabled/
