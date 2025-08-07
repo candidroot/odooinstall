@@ -29,7 +29,7 @@ echo ">>> Starting Odoo $ODOO_VERSION installation..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git python3-pip build-essential wget python3-dev python3-venv \
     libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools \
-    node-less libjpeg-dev libpq-dev libffi-dev libssl-dev xz-utils xfonts-75dpi
+    node-less libjpeg-dev libpq-dev libffi-dev libssl-dev xz-utils xfonts-75dpi nodejs npm
 
 # === PostgreSQL Installation ===
 echo ">>> Installing PostgreSQL..."
@@ -42,7 +42,7 @@ sudo wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-
 sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 sudo wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
 sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
-sudo apt install -f
+sudo apt install -f -y
 rm wkhtmltox_0.12.6-1.focal_amd64.deb
 rm libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 
