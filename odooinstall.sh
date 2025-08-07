@@ -168,7 +168,7 @@ if [[ "$INCLUDE_ENTERPRISE" == "True" ]]; then
     sudo -u $ODOO_USER $ODOO_HOME/venv/bin/pip install num2words ofxparse dbfread ebaysdk firebase_admin pyOpenSSL
     sudo npm install -g less
     sudo npm install -g less-plugin-clean-css
-    sudo -c "printf 'addons_path=$ODOO_HOME/addons,$ODOO_HOME/odoo/addons,$ODOO_HOME/enterprise\n' >> /etc/odoo.conf"
+    sudo -c "printf 'addons_path=$ODOO_HOME/odoo/addons,$ODOO_HOME/odoo/odoo/addons,$ODOO_HOME/enterprise\n' >> /etc/odoo.conf"
 
 fi
 sudo chown -R $ODOO_USER:$ODOO_USER $ODOO_HOME
