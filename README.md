@@ -25,8 +25,8 @@ ADMIN_PASS="admin"
 
 INSTALL_NGINX="False"   # True to install and configure Nginx
 INSTALL_SSL="False"     # True to enable SSL (requires Nginx)
-DOMAIN="yourdomain.com"
-SSL_EMAIL="admin@yourdomain.com"
+DOMAIN="yourdomain.com" # Your domain for Nginx and SSL
+SSL_EMAIL="admin@yourdomain.com" # Email for Let's Encrypt notifications
 
 INCLUDE_ENTERPRISE="False" # True to include Odoo Enterprise repository
 ```
@@ -50,7 +50,7 @@ sudo ./odooinstall.sh
 
 ## 🏢 Odoo Enterprise
 - Set `INCLUDE_ENTERPRISE="True"` and configure your private repository with a valid token.
-
+- The script will ask for the token during installation.
 ## 📂 Installed Files
 - Source: `/opt/odoo`
 - Config: `/etc/odoo.conf`
