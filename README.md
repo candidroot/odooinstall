@@ -33,8 +33,7 @@ INCLUDE_ENTERPRISE="False" # True to include Odoo Enterprise repository
 
 ## 🛠️ Installation Steps
 ```bash
-git clone https://github.com/candidroot/odooinstall.git
-cd odooinstall
+wget https://raw.githubusercontent.com/candidroot/odooinstall/refs/heads/18.0/odooinstall.sh
 chmod +x odooinstall.sh
 sudo ./odooinstall.sh
 ```
