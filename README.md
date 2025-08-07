@@ -1,6 +1,6 @@
 # 🚀 Odoo Automated Installation Script
 
-This repository contains a **Bash script (`install_odoo.sh`)** to install **Odoo 18** with optional components such as **Nginx reverse proxy**, **Let’s Encrypt SSL**, and **Odoo Enterprise** support.
+This repository contains a **Bash script (`odooinstall.sh`)** to install **Odoo 18** with optional components such as **Nginx reverse proxy**, **Let’s Encrypt SSL**, and **Odoo Enterprise** support.
 
 ## ✅ Features
 - Installs **Odoo 18 (Community or Enterprise)**
@@ -13,7 +13,7 @@ This repository contains a **Bash script (`install_odoo.sh`)** to install **Odoo
 - Uses a parameterized configuration for easy customization
 
 ## ⚙️ Parameters
-Edit these variables at the top of `install_odoo.sh`:
+Edit these variables at the top of `odooinstall.sh`:
 
 ```
 ODOO_USER="odoo"
@@ -33,10 +33,10 @@ INCLUDE_ENTERPRISE="False" # True to include Odoo Enterprise repository
 
 ## 🛠️ Installation Steps
 ```bash
-git clone https://github.com/yourusername/odoo18-installer.git
-cd odoo18-installer
-chmod +x install_odoo.sh
-sudo ./install_odoo.sh
+git clone https://github.com/candidroot/odooinstall.git
+cd odooinstall
+chmod +x odooinstall.sh
+sudo ./odooinstall.sh
 ```
 
 ## 🌐 Accessing Odoo
