@@ -1,4 +1,4 @@
-# 🚀 Odoo Automated Installation Script
+# 🚀 Odoo 18.0 Automated Installation Script For Ubuntu 24.04
 
 This repository contains a **Bash script (`odooinstall.sh`)** to install **Odoo 18** with optional components such as **Nginx reverse proxy**, **Let’s Encrypt SSL**, and **Odoo Enterprise** support.
 
