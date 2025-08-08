@@ -7,8 +7,8 @@ ODOO_DIR="odoo18-docker"
 POSTGRES_VERSION="15"
 ODOO_DB_USER="odoo"
 ODOO_DB_PASSWORD="odoo"
-DOMAIN="odoo.yourdomain.com" # <<< CHANGE THIS
-EMAIL="you@example.com"      # <<< CHANGE THIS
+DOMAIN="odooinstall.candidroot.com" # <<< CHANGE THIS
+EMAIL="admin@candidroot.com"      # <<< CHANGE THIS
 
 # === Update & Install Dependencies ===
 echo "🔄 Updating system packages..."
@@ -79,10 +79,10 @@ server {
 
     location / {
         proxy_pass http://web:8069;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
     location ~ /.well-known/acme-challenge/ {
@@ -104,23 +104,23 @@ docker run --rm -v "$(pwd)/nginx/ssl:/etc/letsencrypt" \
 cat <<EOF > nginx/conf.d/odoo.conf
 server {
     listen 80;
-    server_name ${DOMAIN};
-    return 301 https://$host$request_uri;
+    server_name \${DOMAIN};
+    return 301 https://\$host\$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name ${DOMAIN};
+    server_name \${DOMAIN};
 
-    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/\${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/\${DOMAIN}/privkey.pem;
 
     location / {
         proxy_pass http://web:8069;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF
