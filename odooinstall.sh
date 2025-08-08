@@ -61,6 +61,7 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/letsencrypt
+      - ./nginx/www:/var/www/certbot
     depends_on:
       - web
 
@@ -85,8 +86,9 @@ server {
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
-    location ~ /.well-known/acme-challenge/ {
+    location ^~ /.well-known/acme-challenge/ {
         root /var/www/certbot;
+        try_files \$uri \$uri/ =404;
     }
 }
 EOF
@@ -104,16 +106,16 @@ docker run --rm -v "$(pwd)/nginx/ssl:/etc/letsencrypt" \
 cat <<EOF > nginx/conf.d/odoo.conf
 server {
     listen 80;
-    server_name \${DOMAIN};
+    server_name ${DOMAIN};
     return 301 https://\$host\$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name \${DOMAIN};
+    server_name ${DOMAIN};
 
-    ssl_certificate /etc/letsencrypt/live/\${DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/\${DOMAIN}/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 
     location / {
         proxy_pass http://web:8069;
