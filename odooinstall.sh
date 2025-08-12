@@ -43,8 +43,8 @@ sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 sudo wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
 sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
 sudo apt install -f -y
-rm wkhtmltox_0.12.6-1.focal_amd64.deb
-rm libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+rm -rf wkhtmltox_0.12.5-1.bionic_amd64.deb
+rm -rf libssl1.1_1.1.1f-1ubuntu2_amd64.deb
 
 # === Create Odoo User ===
 sudo adduser --system --quiet --shell=/bin/bash --home=$ODOO_HOME --group $ODOO_USER || true
